@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chris.dao.DataSyncDao">
+
+    <!-- 门店 -->
+    <select id="getListTbSalOrder4Store" resultType="com.chris.entity.TbSalOrder4Store">
+        select * from hxstore.tb_sal_order a
+        left join hxcaigou.tb_pub_agency g on a.dealerid=g.AgcyCode
+        left join hxcaigou.tb_pub_store d on a.storeno=d.StoreCode
+    </select>
+
+    <select id="getListTbSalOrderitem4Store" resultType="com.chris.entity.TbSalOrderitem4Store">
+        select * from hxstore.tb_sal_orderitem a
+    </select>
+
+    <select id="getListTbSalOrderitem4StoreByBillno" resultType="com.chris.entity.TbSalOrderitem4Store">
+        select
+            a.detailno,
+            a.billno,
+            a.type,
+            a.prodname,
+            a.model,
+            a.artno,
+            a.storageno,
+            a.storagename,
+            a.unitno,
+            a.unitname,
+            a.quantity,
+            a.sample,
+            a.unitprice,
+            a.taxno,
+            a.taxname,
+            a.taxrate,
+            a.discountrate,
+            a.amount,
+            a.discountamount,
+            a.finalamount,
+            a.attainfo,
+            a.custinfo,
+            a.combinfo,
+            a.cdescription,
+            a.patchno,
+            a.patchname,
+            a.pretaxamount,
+            a.taxamount,
+            a.memo,
+            a.createuser,
+            a.createusername,
+            a.createtime,
+            a.updateuser,
+            a.updateusername,
+            a.updatetime,
+            a.iscustom,
+            a.dealerid,
+            ifnull(p.brandname, p2.brandname) as brandname,
+            ifnull(p.seriesName, p2.seriesName) as seriesName,
+            ifnull(p.prodid, p2.prodid) as prodid,
+            ifnull(p.spec, p2.spec) as spec,
+            ifnull(p.prodcode, p2.prodcode) as prodno
+        from hxstore.tb_sal_orderitem a
+        left join hxcaigou.tb_pub_product p on a.prodno=p.ProdCode
+        left join hxstore.tb_pub_product p1 on a.prodno=p1.prodno
+        left join hxcaigou.tb_pub_product p2 on p1.sprodno=p2.ProdCode
+        where a.billno=#{billno}
+    </select>
+
+    <!-- 协同 -->
+    <select id="getListTbSalBill4Xt" resultType="com.chris.entity.TbSalBill4Xt">
+        select * from hxcaigou.tb_sal_bill a
+    </select>
+
+    <select id="existTbSalBill4XtByBillno" resultType="java.lang.Integer">
+        select count(*) from hxcaigou.tb_sal_bill a
+        where a.BillNo=#{billNo}
+    </select>
+
+    <select id="getListTbSalBillitem4Xt" resultType="com.chris.entity.TbSalBillitem4Xt">
+        select * from hxcaigou.tb_sal_billitem a
+    </select>
+
+    <select id="getListTbPubEmployee" resultType="com.chris.entity.TbPubEmployee" parameterType="com.chris.entity.TbPubEmployee">
+        select * from hxcaigou.tb_pub_employee e
+        where e.empname=#{empname} and e.agcycode=#{agcycode}
+    </select>
+
+    <insert id="saveTbSalBill4Xt" parameterType="com.chris.entity.TbSalBill4Xt" useGeneratedKeys="true" keyProperty="billId">
+      insert into hxcaigou.tb_sal_bill(
+        billNo,
+        billDate,
+        agcyId,
+        agcyCode,
+        agcyName,
+        storeId,
+        storeCode,
+        storeName,
+        customerName,
+        address,
+        custMobile,
+        delyDate,
+        spGuide,
+        totalAmount,
+        tdisAmount,
+        tdisAmountRate,
+        dealAmount,
+        salesCertificate,
+        memo,
+        status,
+        creator,
+        createTime,
+        auditor,
+        auditTime
+      )values(
+        #{billNo},
+        #{billDate},
+        #{agcyId},
+        #{agcyCode},
+        #{agcyName},
+        #{storeId},
+        #{storeCode},
+        #{storeName},
+        #{customerName},
+        #{address},
+        #{custMobile},
+        #{delyDate},
+        #{spGuide},
+        #{totalAmount},
+        #{tdisAmount},
+        #{tdisAmountRate},
+        #{dealAmount},
+        #{salesCertificate},
+        #{memo},
+        #{status},
+        #{creator},
+        #{createTime},
+        #{auditor},
+        #{auditTime}
+      )
+    </insert>
+
+    <insert id="saveTbSalBillitem4Xt" parameterType="com.chris.entity.TbSalBillitem4Xt">
+      insert into hxcaigou.tb_sal_billitem(
+        billId,
+        seqNo,
+        prodId,
+        prodCode,
+        prodName,
+        spec,
+        model,
+        artNo,
+        prodImg,
+        colorId,
+        colorCode,
+        colorName,
+        brandName,
+        seriesName,
+        unitName,
+        qty,
+        retailPrice,
+        retailAmt,
+        disRate,
+        disPrice,
+        memo,
+        isCustom
+      )values(
+        #{billId},
+        #{seqNo},
+        #{prodId},
+        #{prodCode},
+        #{prodName},
+        #{spec},
+        #{model},
+        #{artNo},
+        #{prodImg},
+        #{colorId},
+        #{colorCode},
+        #{colorName},
+        #{brandName},
+        #{seriesName},
+        #{unitName},
+        #{qty},
+        #{retailPrice},
+        #{retailAmt},
+        #{disRate},
+        #{disPrice},
+        #{memo},
+        #{isCustom}
+      )
+    </insert>
+
+    <update id="updateTbSalOrder4StoreById" parameterType="com.chris.entity.TbSalOrder4Store">
+        update hxstore.tb_sal_order a
+        set a.memo=#{memo}
+        where billno=#{billno}
+    </update>
+
+    <update id="updateTbSalOrderitem4StoreById" parameterType="com.chris.entity.TbSalOrderitem4Store">
+        update hxstore.tb_sal_orderitem a
+        set a.memo=#{memo}
+        where billno=#{billno}
+    </update>
+
+</mapper>
